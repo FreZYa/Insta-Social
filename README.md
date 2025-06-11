@@ -22,27 +22,34 @@ python -m venv env
 source env/bin/activate  # On Windows, use: env\Scripts\activate
 ```
 
-3. Install Python dependencies
+3. Set up environment variables
+```
+# Copy the example env file
+cp env.example .env
+# Edit .env with your own values
+```
+
+4. Install Python dependencies
 ```
 pip install -r requirements.txt
 ```
 
-4. Install Node.js dependencies
+5. Install Node.js dependencies
 ```
 npm install
 ```
 
-5. Build CSS
+6. Build CSS
 ```
 npm run build
 ```
 
-6. Run migrations
+7. Run migrations
 ```
 python manage.py migrate
 ```
 
-7. Start the development server
+8. Start the development server
 ```
 python manage.py runserver
 ```
