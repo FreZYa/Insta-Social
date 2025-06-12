@@ -35,16 +35,7 @@ def user_logout(request):
 
 @login_required
 def index(request):
-    current_user = request.user
-    posts = Post.objects.filter(user=current_user)
-    
-    # Get or create profile for the user
-    try:
-        profile = Profile.objects.get(user=current_user)
-    except Profile.DoesNotExist:
-        profile = Profile.objects.create(user=current_user)
-    
-    return render(request, 'users/index.html', {'posts': posts, 'profile': profile})
+    return redirect('feed')
 
 def register(request):
     if request.method == 'POST':
