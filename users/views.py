@@ -1,8 +1,9 @@
 from posts.models import Post
 from .models import Profile
 from django.shortcuts import render
-from .forms import LoginForm, UserRegistrationForm, UserEditForm, ProfileEditForm
+from .forms import UserRegistrationForm, UserEditForm, ProfileEditForm
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import redirect
 from django.contrib.auth import logout
 from django.http import HttpResponse
@@ -11,18 +12,21 @@ from django.contrib.auth.decorators import login_required
 # Create your views here.
 def user_login(request):
     if request.method == 'POST':
-        form = LoginForm(request.POST)
+        form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            user = authenticate(request, username=username, password=password)
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                return HttpResponse('Logged in successfully')
-            else:
-                return HttpResponse('Invalid credentials')
+                # Get next page from URL parameter or default to index
+                next_page = request.GET.get('next')
+                if next_page:
+                    return redirect(next_page)
+                else:
+                    return redirect('index')
     else:
-        form = LoginForm()
+        form = AuthenticationForm()
     return render(request, 'users/login.html', {'form': form})
 
 def user_logout(request):
@@ -33,7 +37,13 @@ def user_logout(request):
 def index(request):
     current_user = request.user
     posts = Post.objects.filter(user=current_user)
-    profile = Profile.objects.get(user=current_user)
+    
+    # Get or create profile for the user
+    try:
+        profile = Profile.objects.get(user=current_user)
+    except Profile.DoesNotExist:
+        profile = Profile.objects.create(user=current_user)
+    
     return render(request, 'users/index.html', {'posts': posts, 'profile': profile})
 
 def register(request):
