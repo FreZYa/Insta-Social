@@ -1,6 +1,58 @@
 {% extends "users/base.html" %}
-{% block title %}Register Done{% endblock %}
+{% block title %}Welcome to Photo App{% endblock %}
 {% block body %}
-    <h1>Welcome, {{ new_user.username }}</h1>
-    <p>Your account has been successfully created. Now you can <a href="{% url 'login' %}">login</a>.</p>
+<div class="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div class="sm:mx-auto sm:w-full sm:max-w-md">
+        <div class="bg-white py-8 px-4 shadow-lg sm:rounded-lg sm:px-10">
+            <!-- Welcome Icon -->
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+                <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
+            </div>
+            
+            <!-- Welcome Message -->
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">
+                    Welcome to Photo App!
+                </h2>
+                <h3 class="text-lg font-medium text-gray-700 mb-4">
+                    Hello, {{ new_user.username }}! 👋
+                </h3>
+                <p class="text-sm text-gray-600 mb-6">
+                    Your account has been successfully created. You're now part of our creative community!
+                </p>
+                
+                <!-- Getting Started Tips -->
+                <div class="bg-blue-50 border border-blue-200 rounded-md p-4 mb-6">
+                    <h4 class="text-sm font-medium text-blue-800 mb-2">
+                        🚀 Getting Started
+                    </h4>
+                    <div class="text-sm text-blue-700 text-left">
+                        <ol class="list-decimal list-inside space-y-1">
+                            <li>Sign in to your new account</li>
+                            <li>Complete your profile</li>
+                            <li>Upload your first photo</li>
+                            <li>Connect with other users</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="space-y-3">
+                    <a href="{% url 'login' %}" 
+                       class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                        <span class="mr-2">🎉</span>
+                        Sign In to Your Account
+                    </a>
+                    
+                    <a href="{% url 'index' %}" 
+                       class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                        Explore the Community
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
