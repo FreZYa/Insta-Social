@@ -1,12 +1,36 @@
 {% extends "users/base.html" %}
 {% block title %}Edit your account{% endblock %}
 {% block body %}
-    <h1>Edit your account</h1>
-    <p>You can edit your account using the following form:</p>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ user_form.as_p }}
-        {{ profile_form.as_p }}
-        <button type="submit">Save changes</button>
-    </form>
+    <div class="container py-5 mx-10">
+        <h1 class="text-2xl font-bold mb-4">Edit your account</h1>
+        <form method="post" class="bg-white shadow-md m-10 p-10 rounded pt-6 pb-8 mb-4" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-2">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="first_name">First Name</label>
+                <div class="shadow appearance-none border rounded py-2 px-3 mr-10 text-gray-700">
+                    {{user_form.first_name}}
+                </div>
+            </div>
+            <div class="mb-2">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="last_name">Last Name</label>
+                <div class="shadow appearance-none border rounded py-2 px-3 mr-10 text-gray-700">
+                    {{user_form.last_name}}
+                </div>
+            </div>
+            <div class="mb-2">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="email">Email</label>
+                <div class="shadow appearance-none border rounded py-2 px-3 mr-10 text-gray-700">
+                    {{user_form.email}}
+                </div>
+            </div>
+            <div class="mb-2">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="photo">Photo</label>
+                <div class="shadow appearance-none border rounded py-2 px-3 mr-10 text-gray-700">
+                    {{profile_form.photo}}
+                </div>
+            </div>
+            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" type="submit">Save changes</button>
+        </form>
+
+    </div>
 {% endblock %}

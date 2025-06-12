@@ -1,0 +1,171 @@
+{% extends "users/base.html" %}
+{% load mathfilters %}
+{% load static %}
+{% block body %}
+    <div class="flex justify-center mt-5 p-4">
+        <h2 class="text-3xl font-normal mb-2 text-gray-500">My Posts</h2>
+    </div>
+    <div class="grid grid-cols-1 max-w-md mx-auto p-4">
+        {% for post in posts %}
+        <a href="#">
+            <div class="rounded overflow-hidden w-full bg-white shadow-lg rounded-lg mb-6">
+                <div class="user-container flex mx-5 my-5">
+                    <img src="{{ post.user.profile.photo.url }}" alt="{{ post.user.username }}" class="rounded-full w-10 h-10">
+                    <div class="mx-2 my-2 font-bold content-center"><span class="text-indigo-500">{{ post.user.first_name }}</span></div>
+                </div>
+                <div>
+                    <img src="{{ post.image.url }}" alt="{{ post.title }}" class="w-full">
+                </div>
+                <div class="px-6 py-4">
+                    <div class="icon-container flex gap-3">
+                        {% if request.user in post.liked_by.all %}
+                            <a id="post-{{ post.id }}" class="btn-unlike">
+                                <img src="{% static 'users/images/redlike.png' %}" alt="heart" class="w-6 h-6 cursor-pointer hover:opacity-50">
+                            </a>
+                        {% else %}
+                            <a id="post-{{ post.id }}" class="btn-like">
+                                <img src="{% static 'users/images/like.png' %}" alt="heart" class="w-6 h-6 cursor-pointer hover:opacity-50">
+                            </a>
+                        {% endif %}
+                        <img src="{% static 'users/images/comment.png' %}" alt="comment" class="w-6 h-6 cursor-pointer hover:opacity-50">
+                        <img src="{% static 'users/images/share.png' %}" alt="share" class="w-6 h-6 cursor-pointer hover:opacity-50">
+                    </div>
+                </div>
+                <div class="px-6">
+                    {% if post.liked_by.count == 0 %}
+                        <p class="text-gray-700 text-base">No likes yet</p>
+                    {% elif post.liked_by.count == 1 %}
+                        <p class="text-gray-700 text-base">{{ post.liked_by.first.username }} likes this</p>
+                    {% else %}
+                        {% if request.user in post.liked_by.all %}
+                            <p class="text-gray-700 text-base">You and {{ post.liked_by.count|sub:1 }} others like this</p>
+                        {% else %}
+                            <p class="text-gray-700 text-base">{{ post.liked_by.first.username }} and {{ post.liked_by.count|sub:1 }} others like this</p>
+                        {% endif %}
+                    {% endif %}
+                </div>
+                <div class="px-6 py-4">
+                    <div class="font-bold text-xl mb-2">{{post.title}}</div>
+                    <p class="text-gray-700 text-base">{{ post.caption }}</p>
+                </div>
+                <div class="px-6 py-4">
+                    <div class="font-bold text-xl mb-2">Comments</div>
+                    <div class="text-gray-700 text-base comments-section">
+                        {% for comment in post.comment_set.all %}
+                            <p><span class="font-bold">{{ comment.posted_by }}</span>: {{ comment.body }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="px-6 py-4">
+                    <form method="post" id="comment-form-{{ post.id }}" class="bg-white rounded">
+                        {% csrf_token %}
+                        <div class="flex items-center">
+                            <div class="border rounded mr-10 text-gray-700">
+                                {{ comment_form.body }}
+                            </div>
+                            <input type="hidden" name="post_id" value="{{ post.id }}">
+                            <input type="hidden" name="posted_by" value="{{ request.user.username }}">
+                            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md">Add</button>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            window.csrfToken = "{{ csrf_token }}";
+
+            // Like / Unlike işlemleri (dinamik ikon güncellemesi)
+            $(document).on('click', '.btn-like', function(e) {
+                e.preventDefault();
+                var $link = $(this);
+                var postId = $link.attr('id').split('-')[1];
+                $.ajax({
+                    url: '{% url "like" %}',
+                    type: 'POST',
+                    headers: {
+                        'X-CSRFToken': window.csrfToken
+                    },
+                    data: {
+                        post_id: postId
+                    },
+                    success: function(response) {
+                        // ikon kırmızıya dönsün ve buton sınıfı güncellensin
+                        $link.removeClass('btn-like').addClass('btn-unlike');
+                        $link.find('img').attr('src', '{% static "users/images/redlike.png" %}');
+                    }
+                });
+            });
+
+            $(document).on('click', '.btn-unlike', function(e) {
+                e.preventDefault();
+                var $link = $(this);
+                var postId = $link.attr('id').split('-')[1];
+                $.ajax({
+                    url: '{% url "like" %}',
+                    type: 'POST',
+                    headers: {
+                        'X-CSRFToken': window.csrfToken
+                    },
+                    data: {
+                        post_id: postId
+                    },
+                    success: function(response) {
+                        // ikon beyaza dönsün ve buton sınıfı güncellensin
+                        $link.removeClass('btn-unlike').addClass('btn-like');
+                        $link.find('img').attr('src', '{% static "users/images/like.png" %}');
+                    }
+                });
+            });
+
+            // Comment submission via AJAX
+            $(document).on('submit', '[id^="comment-form-"]', function(e) {
+                e.preventDefault();
+                var $form = $(this);
+                var postId = $form.find('input[name="post_id"]').val();
+                var commentBody = $form.find('textarea[name="body"], input[name="body"]').val();
+                var postedBy = $form.find('input[name="posted_by"]').val();
+
+                if (!commentBody.trim()) {
+                    alert('Comment cannot be empty.');
+                    return;
+                }
+
+                $.ajax({
+                    url: '{% url "add_comment" %}',
+                    type: 'POST',
+                    headers: {
+                        'X-CSRFToken': window.csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    data: {
+                        post_id: postId,
+                        body: commentBody,
+                        posted_by: postedBy
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            // Clear the comment input field
+                            $form.find('textarea[name="body"], input[name="body"]').val('');
+
+                            // Append the new comment to the Comments section
+                            var $commentsSection = $form.closest('.rounded-lg').find('.comments-section');
+                            var newCommentHtml = '<p><span class="font-bold">' + response.comment_author + '</span>: ' + response.comment_body + '</p>';
+                            $commentsSection.append(newCommentHtml);
+                        } else {
+                            alert('Error adding comment: ' + response.message);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        alert('An error occurred while adding the comment.');
+                        console.error(xhr.responseText);
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}
